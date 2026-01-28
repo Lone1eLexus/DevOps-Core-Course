@@ -1,0 +1,1 @@
+Go (Golang) is a statically typed, compiled language designed at Google for building reliable, efficient software at scale. For DevOps applications, Go offers the perfect balance of performance, simplicity, and maintainability.

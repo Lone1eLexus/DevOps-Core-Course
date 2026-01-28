@@ -1,0 +1,8 @@
+# Go
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
