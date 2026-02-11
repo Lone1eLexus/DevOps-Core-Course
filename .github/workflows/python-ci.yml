@@ -97,4 +97,4 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/devops-info-service:latest
-            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:${{VERSION}}
+            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:${{ steps.calver.outputs.version }}

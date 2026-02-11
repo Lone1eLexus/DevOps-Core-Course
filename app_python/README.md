@@ -84,3 +84,7 @@ A lightweight web service that provides real time system information and health 
 | HOST | 0.0.0.0 | IP-Address |
 | PORT | 8000 | Listening port |
 | DEBUG | False | Enable debug logging |
+
+## Status
+
+![Python CI/CD](https://github.com/username/repo/workflows/workflow-name/badge.svg)
