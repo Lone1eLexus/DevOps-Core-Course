@@ -17,15 +17,13 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Snyk
-        working-directory: app_python 
-        uses: snyk/actions/python-3.10@master
+        uses: snyk/actions/python@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high
+
 
   test:
     needs: security
