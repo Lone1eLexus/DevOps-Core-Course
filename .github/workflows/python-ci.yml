@@ -21,6 +21,7 @@ jobs:
 
       - name: Run Snyk
         uses: snyk/actions/python-3.10@master
+        working-directory: app_python 
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
