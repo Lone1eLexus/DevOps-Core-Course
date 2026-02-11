@@ -37,13 +37,13 @@ jobs:
             pip install pytest flake8 pytest-cov
           fi
 
-      - name: Run Snyk
-        uses: snyk/actions/python@master
+      - name: Scan app.py with Snyk Code
+        uses: snyk/actions/cli@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --path=app_python --severity-threshold=high
+          args: code test app_python/ --severity-threshold=high
 
       - name: Lint
         working-directory: app_python
