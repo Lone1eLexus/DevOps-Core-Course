@@ -7,13 +7,13 @@ A lightweight web service that provides real time system information and health 
 - Python 3.11+
 - pip (Python package manager)
 
-## Installation
+## Installation locally
 
 1. Clone the repository:
 
 ```bash
-   git clone https://github.com/Lone1eLexus/DevOps-Core-Course.git
-   cd app_python
+    git clone https://github.com/Lone1eLexus/DevOps-Core-Course.git
+    cd app_python
 ```
 
 2. Create and activate virtual environment:
@@ -29,7 +29,7 @@ A lightweight web service that provides real time system information and health 
     pip install -r requirements.txt
 ```
 
-## Running
+## Running locally
 
 - Basic Usage:
 ```bash
@@ -42,6 +42,35 @@ A lightweight web service that provides real time system information and health 
     HOST=127.0.0.1 PORT=8080 python app.py
     DEBUG=True python app.py
 ```
+
+## Installation as docker
+
+1. Clone the repository:
+
+```bash
+    git clone https://github.com/Lone1eLexus/DevOps-Core-Course.git
+    cd app_python
+```
+
+2. Build docker image:
+
+```bash
+    docker build . -t devops-info-service
+```
+
+## Pulling image from DockerHub
+
+```bash
+    docker pull lehus1/devops-info-service:1.0.0
+```
+
+## Running via docker
+
+```bash
+    docker run -p 8000:8000 devops-info-service
+```
+
+
 
 ## API Endpoints
 - GET / - Service and system information

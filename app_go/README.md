@@ -38,6 +38,34 @@ A lightweight web service that provides real time system information and health 
     HOST=127.0.0.1 PORT=3000 ./app
 ```
 
+## Installation as docker
+
+1. Clone the repository:
+
+```bash
+    git clone https://github.com/Lone1eLexus/DevOps-Core-Course.git
+    cd app_go
+```
+
+2. Build docker image:
+
+```bash
+    docker build . -t devops-info-service-go
+```
+
+## Pulling image from DockerHub
+
+```bash
+    docker pull lehus1/devops-info-service-go:1.0.0
+```
+
+## Running via docker
+
+```bash
+    docker run -p 8000:8000 devops-info-service-go
+```
+
+
 ## API Endpoints
 - GET / - Service and system information
 - GET /health - Health check

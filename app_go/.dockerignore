@@ -1,0 +1,37 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Secrets
+.env
+*.pem
+secrets/
+
+# Documentation
+*.md
+docs/
+
+# Tests (if not needed in container)
+tests/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md

@@ -1,0 +1,13 @@
+# 🔨 Stage 1: Builder
+FROM golang:1.21 AS builder
+WORKDIR /app
+COPY go.mod main.go .
+RUN go mod download
+RUN CGO_ENABLED=0 go build -o my_app
+
+# 🚀 Stage 2: Runtime
+FROM gcr.io/distroless/static-debian12
+WORKDIR /app
+COPY --from=builder /app/my_app .
+EXPOSE 8000
+CMD ["./my_app"]
