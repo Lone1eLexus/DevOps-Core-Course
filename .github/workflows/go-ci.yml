@@ -7,7 +7,7 @@ on:
       - 'lab*'
     paths:
       - 'app_go/**'
-    #  - '.github/workflows/go-ci.yml'
+      - '.github/workflows/go-ci.yml'
   pull_request:
     branches: [ 'master' ]
     paths:
@@ -20,43 +20,49 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          python-version: '3.13'
-          cache: 'pip'
-          cache-dependency-path: app_python/requirements*.txt
+          go-version: '1.21'
+          cache: 'go'
+          cache-dependency-path: 'app_go/go.sum'
 
       - name: Install dependencies
-        working-directory: app_python
-        run: |
-          pip install -r requirements.txt
-          if [ -f requirements-dev.txt ]; then
-            pip install -r requirements-dev.txt
-          else
-            pip install pytest flake8 pytest-cov
-          fi
+        working-directory: app_go
+        run: go mod download
 
-      - name: Run Snyk
-        uses: snyk/actions/python@master
-        continue-on-error: true
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Scan  with Snyk Code
+        working-directory: app_go
+        continue-on-error: false
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --path=app_python --severity-threshold=high
+        run: 
+          snyk config set api=$SNYK_TOKEN
+          snyk code test . --severity-threshold=high
+          snyk test --file=go.mod --package-manager=gomodules --severity-threshold=high
 
-      - name: Lint
-        working-directory: app_python
-        run: flake8 app.py
-
-      - name: Test
-        working-directory: app_python
-        run: pytest tests/
+      - name: Lint Go code
+        working-directory: app_go
+        run: |
+          go install golang.org/x/lint/golint@latest
+          golint ./...
 
       - name: Run tests with coverage
-        working-directory: app_python
+        working-directory: app_go
         run: |
-          pytest tests/ --cov=. --cov-report=xml --cov-report=term --cov-fail-under=70
+          go test -v -coverprofile=coverage.out -covermode=atomic ./...
+          go tool cover -html=coverage.out -o coverage.html
+
+      - name: Upload coverage to Coveralls
+        working-directory: app_go
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go install github.com/mattn/go-coveralls@latest
+          go-coveralls -service=github -coverprofile=coverage.out
 
   docker:
     needs: test
@@ -86,8 +92,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./app_python
+          context: ./app_go
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:latest
-            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:${{ steps.calver.outputs.version }}
+            ${{ secrets.DOCKER_USERNAME }}/devops-info-service-go:latest
+            ${{ secrets.DOCKER_USERNAME }}/devops-info-service-go:${{ steps.calver.outputs.version }}
