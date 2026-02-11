@@ -43,8 +43,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          path: app_python
-          args: --severity-threshold=high
+          args: --path=app_python --severity-threshold=high
 
       - name: Lint
         working-directory: app_python

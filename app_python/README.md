@@ -87,4 +87,4 @@ A lightweight web service that provides real time system information and health 
 
 ## Status
 
-![Python CI/CD](https://github.com/username/repo/workflows/workflow-name/badge.svg)
+![Python CI/CD](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)
