@@ -45,7 +45,9 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test app.py --severity-threshold=high
+        run: 
+          snyk config set api=$SNYK_TOKEN
+          snyk code test app.py --severity-threshold=high
 
       - name: Lint
         working-directory: app_python
