@@ -42,12 +42,12 @@ jobs:
 
       - name: Scan ONLY app.py with Snyk Code
         working-directory: app_python
-        continue-on-error: true
+        continue-on-error: false
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: 
           snyk config set api=$SNYK_TOKEN
-          snyk code test app.py --severity-threshold=high
+          snyk code test . --severity-threshold=high
 
       - name: Lint
         working-directory: app_python
@@ -61,6 +61,12 @@ jobs:
         working-directory: app_python
         run: |
           pytest tests/ --cov=. --cov-report=xml --cov-report=term --cov-fail-under=70
+
+      - name: Upload coverage to Coveralls
+        working-directory: app_python
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: coveralls --service=github
 
   docker:
     needs: test
