@@ -60,5 +60,5 @@ jobs:
           context: ./app_python
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/myapp:latest
-            ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:latest
+            ${{ secrets.DOCKER_USERNAME }}/devops-info-service:${{ github.sha }}
