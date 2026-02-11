@@ -12,6 +12,7 @@ import (
     "time"
 )
 
+// Service represents service metadata
 type Service struct {
     Name        string `json:"name"`
     Version     string `json:"version"`
@@ -19,6 +20,7 @@ type Service struct {
     Framework   string `json:"framework"`
 }
 
+// System represents system/platform information
 type System struct {
     Hostname        string `json:"hostname"`
     Platform        string `json:"platform"`
@@ -28,6 +30,7 @@ type System struct {
     GoVersion       string `json:"go_version"`
 }
 
+// Runtime represents service runtime information
 type Runtime struct {
     UptimeSeconds int    `json:"uptime_seconds"`
     UptimeHuman   string `json:"uptime_human"`
@@ -35,6 +38,7 @@ type Runtime struct {
     Timezone      string `json:"timezone"`
 }
 
+// Request represents HTTP request metadata
 type Request struct {
     ClientIP  string `json:"client_ip"`
     UserAgent string `json:"user_agent"`
@@ -42,12 +46,14 @@ type Request struct {
     Path      string `json:"path"`
 }
 
+// Endpoint represents API endpoint metadata
 type Endpoint struct {
     Path        string `json:"path"`
     Method      string `json:"method"`
     Description string `json:"description"`
 }
 
+// ServiceInfo represents the main service response structure
 type ServiceInfo struct {
     Service   Service   `json:"service"`
     System    System    `json:"system"`
@@ -56,6 +62,7 @@ type ServiceInfo struct {
     Endpoints []Endpoint `json:"endpoints"`
 }
 
+// HealthResponse represents health check endpoint response
 type HealthResponse struct {
     Status        string `json:"status"`
     Timestamp     string `json:"timestamp"`
