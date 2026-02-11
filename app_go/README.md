@@ -80,3 +80,5 @@ A lightweight web service that provides real time system information and health 
 ## Status
 
 ![Go CI/CD](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/go-ci.yml/badge.svg)
+
+[![Coverage Status](https://coveralls.io/repos/github/Lone1eLexus/DevOps-Core-Course/badge.svg?branch=lab03&flag=go-unit-tests)](https://coveralls.io/github/Lone1eLexus/DevOps-Core-Course?branch=lab03)

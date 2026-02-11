@@ -57,12 +57,11 @@ jobs:
           go tool cover -html=coverage.out -o coverage.html
 
       - name: Upload coverage to Coveralls
-        working-directory: app_go
-        env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          go install github.com/mattn/go-coveralls@latest
-          go-coveralls -service=github -coverprofile=coverage.out
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: app_go/coverage.out
+          parallel: true
+          flag-name: go-unit-tests
 
   docker:
     needs: test
