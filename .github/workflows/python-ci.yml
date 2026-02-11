@@ -25,7 +25,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=app_python/ --severity-threshold=high
+          args: --file=app_python/requirements.txt --severity-threshold=high
 
 
   test:
