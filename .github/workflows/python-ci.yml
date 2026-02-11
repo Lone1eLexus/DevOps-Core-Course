@@ -21,6 +21,7 @@ jobs:
 
       - name: Run Snyk
         uses: snyk/actions/python@master
+        working-directory: app_python 
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
