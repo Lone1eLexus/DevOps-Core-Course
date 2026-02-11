@@ -59,10 +59,10 @@ jobs:
       - name: Upload coverage to Coveralls
         uses: shogo82148/actions-goveralls@v1
         with:
+          working-directory: app_go 
           path-to-profile: coverage.out
           parallel: true
           flag-name: go-unit-tests
-        working-directory: app_go  
 
   docker:
     needs: test
