@@ -14,7 +14,20 @@ on:
       - 'app_python/**'
 
 jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Snyk
+        uses: snyk/actions/python-3.10@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
   test:
+    needs: security
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
