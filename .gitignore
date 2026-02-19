@@ -48,10 +48,6 @@ venv/
 *.pem
 secrets/
 
-# Documentation
-*.md
-docs/
-
 # Tests (if not needed in container)
 tests/
 
