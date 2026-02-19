@@ -84,3 +84,9 @@ A lightweight web service that provides real time system information and health 
 | HOST | 0.0.0.0 | IP-Address |
 | PORT | 8000 | Listening port |
 | DEBUG | False | Enable debug logging |
+
+## Status
+
+![Python CI/CD](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)
+
+[![Coverage Status](https://coveralls.io/repos/github/Lone1eLexus/DevOps-Core-Course/badge.svg?branch=lab03)](https://coveralls.io/github/Lone1eLexus/DevOps-Core-Course?branch=lab03)
