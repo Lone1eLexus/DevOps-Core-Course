@@ -1,1 +1,61 @@
-test
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+*.tfvars
+.terraform.lock.hcl
+
+# Cloud credentials
+*.pem
+*.key
+*.json
+credentials
+yc-credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Secrets
+.env
+*.pem
+secrets/
+
+# Tests (if not needed in container)
+tests/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
