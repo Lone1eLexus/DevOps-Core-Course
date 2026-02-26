@@ -59,3 +59,9 @@ Thumbs.db
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# Ansible
+*.retry
+.vault_pass
+ansible/inventory/*.pyc
+__pycache__/
