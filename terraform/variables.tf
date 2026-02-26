@@ -14,9 +14,28 @@ variable "zone" {
   default     = "ru-central1-a"
 }
 
-variable "subnet_id" {
-  description = "Subnet ID for VM placement"
+variable "net_name" {
+  description = "Net name for VM placement"
   type        = string
+  default     = "dev-ops-net"
+}
+
+variable "subnet_name" {
+  description = "Subnet name for VM placement"
+  type        = string
+  default     = "dev-ops-subnet"
+}
+
+variable "subnet_cidr" {
+  description = "CIDR"
+  type        = string
+  default     = "192.168.10.0/24"
+}
+
+variable "sg_name" {
+  description = "SG name"
+  type        = string
+  default     = "dev-ops-sg"
 }
 
 variable "ssh_public_key" {
