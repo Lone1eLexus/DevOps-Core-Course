@@ -1,38 +1,42 @@
 ---
 
 - name: Include wipe tasks
-  include_tasks: wipe.yml
+  ansible.builtin.include_tasks: wipe.yml
   tags:
     - web_app_wipe
 
 - name: Deploy application with Docker Compose
+  become: true
+  tags:
+    - app_deploy
+    - compose
   block:
     - name: Create app directory
-      file:
+      ansible.builtin.file:
         path: "{{ compose_project_dir }}"
         state: directory
         mode: '0755'
 
     - name: Template docker-compose file
-      template:
+      ansible.builtin.template:
         src: docker-compose.yml.j2
         dest: "{{ compose_project_dir }}/docker-compose.yml"
         mode: '0644'
-    
+
     - name: Install docker-compose
-      apt:
+      ansible.builtin.apt:
         name: docker-compose-plugin
         state: present
 
     - name: Log in to Docker Hub
-      docker_login:
+      community.docker.docker_login:
         username: "{{ dockerhub_username }}"
         password: "{{ dockerhub_password }}"
         registry_url: https://index.docker.io/v1/
       no_log: true
 
     - name: Pull Docker image
-      docker_image:
+      community.docker.docker_image:
         name: "{{ docker_image }}:{{ docker_image_tag }}"
         source: pull
 
@@ -44,13 +48,13 @@
         pull: always
 
     - name: Wait for application to be ready
-      wait_for:
+      ansible.builtin.wait_for:
         port: "{{ app_port }}"
         delay: 3
         timeout: 30
 
     - name: Verify health endpoint
-      uri:
+      ansible.builtin.uri:
         url: "http://localhost:{{ app_port }}/health"
         method: GET
         status_code: 200
@@ -59,21 +63,17 @@
       retries: 5
       delay: 2
     - name: Log completion
-      debug:
+      ansible.builtin.debug:
         msg: "Deploy completed"
   rescue:
     - name: Log completion
-      debug:
+      ansible.builtin.debug:
         msg: "Deploy failed"
 
     - name: Fail the playbook
-      fail:
+      ansible.builtin.fail:
         msg: "Deployment failed"
   always:
     - name: Log completion
-      debug:
+      ansible.builtin.debug:
         msg: "Deploy attempted"
-  become: true
-  tags:
-    - app_deploy
-    - compose
