@@ -35,7 +35,7 @@ jobs:
           cd ansible
           ansible-lint playbooks/*.yml
 
-deploy:
+  deploy:
     name: Deploy Application
     needs: lint
     runs-on: ubuntu-latest
