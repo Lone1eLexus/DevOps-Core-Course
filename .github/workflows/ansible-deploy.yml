@@ -69,6 +69,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Test SSH connection
+        run: ssh -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
+
       - name: Create inventory
         run: |
           cat > ansible/inventory/ci.ini << 'EOF'
@@ -77,11 +80,9 @@ jobs:
           EOF
 
       - name: Deploy with Ansible
-        env:
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
         run: |
           cd ansible
-          echo "$ANSIBLE_VAULT_PASSWORD" > .vault_pass
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           ansible-playbook playbooks/deploy.yml \
             -i inventory/ci.ini \
             --vault-password-file .vault_pass
