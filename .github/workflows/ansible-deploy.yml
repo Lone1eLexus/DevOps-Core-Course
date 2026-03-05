@@ -36,12 +36,12 @@ jobs:
         run: |
           echo "$ANSIBLE_VAULT_PASSWORD" > ansible/.vault_pass
           chmod 600 ansible/.vault_pass
+          export ANSIBLE_VAULT_PASSWORD_FILE=ansible/.vault_pass
 
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml --vault-password-file .vault_pass
-        continue-on-error: true
+          ansible-lint playbooks/*.yml
 
   deploy:
     name: Deploy Application
