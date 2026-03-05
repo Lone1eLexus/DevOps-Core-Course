@@ -1,8 +1,12 @@
 ---
 - name: Docker installation
+  become: true
+  tags:
+    - docker_install
+    - docker
   block:
   - name: Install prerequisites
-    apt:
+    ansible.builtin.apt:
       name:
         - ca-certificates
         - curl
@@ -21,17 +25,17 @@
       state: present
 
   - name: Update apt cache after adding Docker repo
-    apt:
+    ansible.builtin.apt:
       update_cache: yes
 
   - name: Install Docker packages
-    apt:
+    ansible.builtin.apt:
       name: "{{ docker_packages }}"
       state: present
     notify: restart docker
 
   - name: Install Docker
-    apt:
+    ansible.builtin.apt:
       name: docker-ce
       state: present
     notify: restart docker
@@ -47,7 +51,7 @@
         state: absent
 
     - name: Clean apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 0
       ignore_errors: yes
@@ -57,7 +61,7 @@
         seconds: 10
 
     - name: Retry apt update
-      apt:
+      ansible.builtin.apt:
         update_cache: yes
         force_apt_get: yes
   always:
@@ -69,14 +73,13 @@
     - name: Log completion
       debug:
         msg: "Docker Installation attempted"
-  become: true
-  tags:
-    - docker_install
-    - docker
-
 
 
 - name: Docker conf
+  become: true
+  tags:
+    - docker_config
+    - docker
   block:
   - name: Add user to docker group
     user:
@@ -98,7 +101,3 @@
     - name: Log completion
       debug:
         msg: "Docker Configuration attempted"
-  become: true
-  tags:
-    - docker_config
-    - docker
