@@ -1,0 +1,8 @@
+---
+docker_image: "{{ dockerhub_username }}/{{ app_name }}"
+docker_image_tag: latest
+restart_policy: unless-stopped
+
+compose_project_dir: "/opt/{{ app_name }}"
+
+web_app_wipe: false
