@@ -1,0 +1,94 @@
+name: Ansible Deployment
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'lab*'
+    paths:
+      - 'ansible/**'
+      - '.github/workflows/ansible-deploy.yml'
+  pull_request:
+    branches: [ 'master' ]
+    paths:
+      - 'ansible/**'
+
+jobs:
+  lint:
+    name: Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ansible ansible-lint
+
+          
+
+      - name: Run ansible-lint
+        run: |
+          cd ansible
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
+          chmod 600 .vault_pass
+          export ANSIBLE_VAULT_PASSWORD_FILE=./.vault_pass
+          ansible-lint playbooks/*.yml
+        continue-on-error: true
+
+  deploy:
+    name: Deploy Application
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          file ~/.ssh/id_rsa
+          ssh -vvv -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
+
+      - name: Install Ansible
+        run: |
+          pip install ansible
+          ansible-galaxy collection install community.docker
+
+      - name: Create inventory
+        run: |
+          cat > ansible/inventory/ci.ini << 'EOF'
+          [webservers]
+          devops-lab-vm ansible_host=${{ secrets.VM_HOST }} ansible_user=${{ secrets.VM_USER }}
+          EOF
+
+      - name: Deploy with Ansible
+        run: |
+          cd ansible
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
+          ansible-playbook playbooks/deploy.yml \
+            -i inventory/ci.ini \
+            --vault-password-file .vault_pass
+          rm .vault_pass
+
+      #- name: Verify deployment -- problem with Yandex IPs, I cant see result with direct curl, but curl with localhost works
+      #  run: |
+      #    sleep 10
+      #    curl -f http://${{ secrets.VM_HOST }}:8080/health || exit 1
+      #    curl -f http://${{ secrets.VM_HOST }}:8080/ || exit 1
