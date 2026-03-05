@@ -72,7 +72,7 @@ jobs:
         run: |
           cat > ansible/inventory/ci.ini << 'EOF'
           [webservers]
-          ci-vm ansible_host=${{ secrets.VM_HOST }} ansible_user=${{ secrets.VM_USER }}
+          devops-lab-vm ansible_host=${{ secrets.VM_HOST }} ansible_user=${{ secrets.VM_USER }}
           EOF
 
       - name: Deploy with Ansible
