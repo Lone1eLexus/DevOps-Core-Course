@@ -2,17 +2,17 @@
 - name: Update apt cache with handling
   block:
     - name: Update apt cache
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
 
   rescue:
     - name: Fix apt cache on failure
-      command: apt-get update --fix-missing
+      ansible.builtin.command: apt-get update --fix-missing
       
   always:
     - name: Log completion
-      debug:
+      ansible.builtin.debug:
         msg: "Apt cache update attempted"
       
   become: true
@@ -23,20 +23,20 @@
 - name: Install common packages with handling
   block:
     - name: Install common packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ common_packages }}"
         state: present
 
   rescue:
     - name: Retry with force
-      apt:
+      ansible.builtin.apt:
         name: "{{ common_packages }}"
         state: present
         force_apt_get: true
       
   always:
     - name: Log completion
-      debug:
+      ansible.builtin.debug:
         msg: "Install common packages attempted"
       
   become: true
