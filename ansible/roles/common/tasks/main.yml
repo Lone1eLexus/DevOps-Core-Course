@@ -3,13 +3,12 @@
   block:
     - name: Update apt cache
       apt:
-        update_cache: yes
+        update_cache: true
         cache_valid_time: 3600
 
   rescue:
     - name: Fix apt cache on failure
       command: apt-get update --fix-missing
-      become: yes
       
   always:
     - name: Log completion
@@ -33,7 +32,7 @@
       apt:
         name: "{{ common_packages }}"
         state: present
-        force_apt_get: yes
+        force_apt_get: true
       
   always:
     - name: Log completion
@@ -49,7 +48,7 @@
 - name: Set timezone to UTC
   timezone:
     name: UTC
-  become: yes
+  become: true
   tags:
   - common
   - users

@@ -81,5 +81,5 @@ jobs:
       - name: Verify deployment
         run: |
           sleep 10
-          curl -f http://${{ secrets.VM_HOST }}:5000/health || exit 1
-          curl -f http://${{ secrets.VM_HOST }}:5000/ || exit 1
+          curl -f http://${{ secrets.VM_HOST }}:8080/health || exit 1
+          curl -f http://${{ secrets.VM_HOST }}:8080/ || exit 1

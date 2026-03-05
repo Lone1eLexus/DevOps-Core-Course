@@ -30,13 +30,11 @@
         password: "{{ dockerhub_password }}"
         registry_url: https://index.docker.io/v1/
       no_log: true
-      become: yes
 
     - name: Pull Docker image
       docker_image:
         name: "{{ docker_image }}:{{ docker_image_tag }}"
         source: pull
-      become: yes
 
     - name: Deploy with docker-compose
       community.docker.docker_compose_v2:
