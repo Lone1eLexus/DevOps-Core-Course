@@ -9,12 +9,12 @@
   rescue:
     - name: Fix apt cache on failure
       ansible.builtin.command: apt-get update --fix-missing
-      
+ 
   always:
     - name: Log completion
       ansible.builtin.debug:
         msg: "Apt cache update attempted"
-      
+
   become: true
   tags:
     - packages
