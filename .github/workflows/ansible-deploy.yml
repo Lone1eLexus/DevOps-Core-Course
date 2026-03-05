@@ -41,7 +41,7 @@ jobs:
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml
+          ansible-lint playbooks/*.yml --vault-password-file .vault_pass
         continue-on-error: true
 
   deploy:
@@ -70,7 +70,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
-        run: ssh -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
+        run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
 
       - name: Create inventory
         run: |
