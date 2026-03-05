@@ -30,6 +30,13 @@ jobs:
         run: |
           pip install ansible ansible-lint
 
+      - name: Create vault password file
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          echo "$ANSIBLE_VAULT_PASSWORD" > ansible/.vault_pass
+          chmod 600 ansible/.vault_pass
+
       - name: Run ansible-lint
         run: |
           cd ansible
