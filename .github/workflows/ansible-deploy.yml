@@ -70,7 +70,9 @@ jobs:
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
-        run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
+        run: |
+          file ~/.ssh/id_rsa
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=accept-new ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo OK"
 
       - name: Create inventory
         run: |
