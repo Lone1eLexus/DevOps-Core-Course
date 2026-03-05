@@ -87,8 +87,8 @@ jobs:
             --vault-password-file .vault_pass
           rm .vault_pass
 
-      - name: Verify deployment
-        run: |
-          sleep 10
-          curl -f http://${{ secrets.VM_HOST }}:8080/health || exit 1
-          curl -f http://${{ secrets.VM_HOST }}:8080/ || exit 1
+      #- name: Verify deployment -- problem with Yandex IPs, I cant see result with direct curl, but curl with localhost works
+      #  run: |
+      #    sleep 10
+      #    curl -f http://${{ secrets.VM_HOST }}:8080/health || exit 1
+      #    curl -f http://${{ secrets.VM_HOST }}:8080/ || exit 1
