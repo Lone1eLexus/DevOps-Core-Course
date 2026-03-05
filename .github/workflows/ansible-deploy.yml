@@ -40,7 +40,7 @@ jobs:
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml
+          ansible-lint playbooks/*.yml --vault-password-file .vault_pass
 
   deploy:
     name: Deploy Application
