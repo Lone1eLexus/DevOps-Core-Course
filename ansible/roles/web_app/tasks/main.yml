@@ -58,8 +58,8 @@
         url: "http://localhost:{{ app_port }}/health"
         method: GET
         status_code: 200
-      register: health_check
-      until: health_check.status == 200
+      register: web_app_health_check
+      until: web_app_health_check.status == 200
       retries: 5
       delay: 2
     - name: Log completion

@@ -1,1 +1,1 @@
-[![Ansible Deployment](https://github.com/your-username/your-repo/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/your-username/your-repo/actions/workflows/ansible-deploy.yml)
+[![Ansible Deployment](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/ansible-deploy.yml)
