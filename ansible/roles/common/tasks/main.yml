@@ -1,5 +1,9 @@
 ---
 - name: Update apt cache with handling
+  become: true
+  tags:
+    - packages
+    - common
   block:
     - name: Update apt cache
       ansible.builtin.apt:
@@ -15,12 +19,12 @@
       ansible.builtin.debug:
         msg: "Apt cache update attempted"
 
+
+- name: Install common packages with handling
   become: true
   tags:
     - packages
     - common
-
-- name: Install common packages with handling
   block:
     - name: Install common packages
       ansible.builtin.apt:
@@ -33,20 +37,16 @@
         name: "{{ common_packages }}"
         state: present
         force_apt_get: true
-      
+
   always:
     - name: Log completion
       ansible.builtin.debug:
         msg: "Install common packages attempted"
-      
-  become: true
-  tags:
-    - packages
-    - common
+
 
 
 - name: Set timezone to UTC
-  timezone:
+  community.general.timezone:
     name: UTC
   become: true
   tags:

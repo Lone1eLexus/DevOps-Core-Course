@@ -11,4 +11,3 @@ common_packages:
   - gnupg
   - lsb-release
   - apt-transport-https
-  
