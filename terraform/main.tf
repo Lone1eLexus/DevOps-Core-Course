@@ -13,33 +13,40 @@ provider "yandex" {
   zone      = var.zone
 }
 
-data "yandex_vpc_subnet" "existing" {
-  subnet_id = var.subnet_id
+resource "yandex_vpc_network" "dev_ops_net" {
+  name = var.net_name
 }
 
-resource "yandex_vpc_security_group" "devops_sg" {
-  name       = "devops-lab-sg"
-  network_id = data.yandex_vpc_subnet.existing.network_id
+resource "yandex_vpc_subnet" "new" {
+  name           = var.subnet_name
+  zone           = var.zone
+  v4_cidr_blocks = [var.subnet_cidr]
+  network_id     = yandex_vpc_network.dev_ops_net.id
+}
+
+resource "yandex_vpc_security_group" "new" {
+  name       = var.sg_name
+  network_id = yandex_vpc_network.dev_ops_net.id
 
   ingress {
     protocol       = "TCP"
     port           = 22
     v4_cidr_blocks = ["0.0.0.0/0"]
-    description    = "SSH access"
+    description    = "SSH"
   }
 
   ingress {
     protocol       = "TCP"
     port           = 80
     v4_cidr_blocks = ["0.0.0.0/0"]
-    description    = "HTTP access"
+    description    = "HTTP"
   }
 
   ingress {
     protocol       = "TCP"
     port           = 5000
     v4_cidr_blocks = ["0.0.0.0/0"]
-    description    = "Custom app port"
+    description    = "App port"
   }
 
   egress {
@@ -81,9 +88,9 @@ resource "yandex_compute_instance" "devops_vm" {
   }
 
   network_interface {
-    subnet_id          = var.subnet_id
+    subnet_id          = yandex_vpc_subnet.new.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.devops_sg.id]
+    security_group_ids = [yandex_vpc_security_group.new.id]
   }
 
   metadata = {

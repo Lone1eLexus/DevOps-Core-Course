@@ -1,0 +1,78 @@
+---
+- name: Remove old Docker repository if exists
+  file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
+  become: yes
+
+- name: Remove old Docker source list if exists
+  file:
+    path: /etc/apt/sources.list.d/download_docker_com_linux_ubuntu.list
+    state: absent
+  become: yes
+
+- name: Clean apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 0
+  become: yes
+  ignore_errors: yes
+
+- name: Install prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+  become: yes
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Update apt cache after adding Docker repo
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install Docker packages
+  apt:
+    name: "{{ docker_packages }}"
+    state: present
+  become: yes
+  notify: restart docker
+
+- name: Install Docker
+  apt:
+    name: docker-ce
+    state: present
+  become: yes
+  notify: restart docker
+
+- name: Ensure Docker service is running and enabled
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Add user to docker group
+  user:
+    name: "{{ docker_user }}"
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Install python3-docker for Ansible docker modules
+  apt:
+    name: python3-docker
+    state: present
+  become: yes
