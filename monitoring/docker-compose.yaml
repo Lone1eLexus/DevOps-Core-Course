@@ -1,0 +1,111 @@
+---
+networks:
+  logging:
+    driver: bridge
+
+volumes:
+  loki-data:
+  grafana-data:
+
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: loki
+    command: -config.file=/etc/loki/config.yaml
+    ports:
+      - 3100:3100
+    volumes:
+      - ./loki/config.yaml:/etc/loki/config.yaml
+      - loki-data:/loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    container_name: promtail
+    ports:
+      - 9080:9080
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - logging
+    depends_on:
+      - loki
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  grafana:
+    image: grafana/grafana:12.3.1
+    container_name: grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    #command: -config.file=/etc/loki/config.yaml -config.expand-env=true
+    networks:
+      - logging
+    depends_on:
+      - loki
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      start_period: 30s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+
+  app-python:
+    image: lehus1/devops-info-service:latest
+    container_name: devops-info-service-python
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    labels:
+      logging: "promtail"
+      app: "devops-python"
+    networks:
+      - logging
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M

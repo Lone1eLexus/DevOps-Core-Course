@@ -5,7 +5,10 @@ Main application module providing system introspection APIs
 import os
 import platform
 import socket
+import sys
 from datetime import datetime, timezone
+from pythonjsonlogger import jsonlogger
+
 
 import logging
 
@@ -23,14 +26,16 @@ app = FastAPI(
     title="Simple python app"
 )
 
-# Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# JSON Logging Setup
+logHandler = logging.StreamHandler(sys.stdout)
+formatter = jsonlogger.JsonFormatter(
+    '%(timestamp)s %(level)s %(name)s %(message)s %(method)s %(path)s %(status)s'
 )
-logger = logging.getLogger(__name__)
+logHandler.setFormatter(formatter)
 
-logger.info('Application starting...')
+logger = logging.getLogger()
+logger.addHandler(logHandler)
+logger.setLevel(logging.INFO)
 
 # System info
 
@@ -47,7 +52,7 @@ def get_system_info():
             "python_version": platform.python_version()
         }
     except Exception as e:
-        logger.error(f"Error getting system info: {e}")
+        logger.error("Error getting system info", extra={"error": str(e)})
         return {
             "hostname": "unknown",
             "platform": "unknown",
@@ -60,6 +65,26 @@ def get_system_info():
 
 # Time
 start_time = datetime.now(timezone.utc)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    start = datetime.now(timezone.utc)
+    response = await call_next(request)
+    duration = (datetime.now(timezone.utc) - start).total_seconds()
+    
+    logger.info(
+        "Request processed",
+        extra={
+            "timestamp": start.isoformat(),
+            "level": "INFO",
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "duration": round(duration, 3),
+            "client_ip": request.client.host
+        }
+    )
+    return response
 
 
 def get_uptime():
@@ -78,18 +103,27 @@ def get_uptime():
 @app.get("/health")
 def health(request: Request):
     """Health endpoint - current health of server."""
-    logger.info(f"Incoming request: {request.method} {request.url.path}")
+    logger.info("Health check", extra={
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "level": "INFO",
+        "status": "healthy"
+    })
     return {
         'status': 'healthy',
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'uptime_seconds': get_uptime()['seconds']
     }
 
+    
+
 
 @app.get("/")
 def index(request: Request):
     """Main endpoint - service and system information."""
-    logger.info(f"Incoming request: {request.method} {request.url.path}")
+    logger.info("Service info requested", extra={
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "level": "INFO"
+    })
     return {
         "service": {
             "name": "devops-info-service",
@@ -126,6 +160,12 @@ def index(request: Request):
 @app.exception_handler(404)
 def not_found(request: Request, exc):
     """Handle 404 Not Found errors."""
+    logger.warning("Not found", extra={
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "level": "WARNING",
+        "path": request.url.path,
+        "status": 404
+    })
     return JSONResponse(
         status_code=404,
         content={
@@ -138,7 +178,12 @@ def not_found(request: Request, exc):
 @app.exception_handler(500)
 def internal_error(request: Request, exc):
     """Handle 500 Internal Server errors."""
-    logger.error(f"Internal server error: {exc}")
+    logger.error("Internal server error", extra={
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "level": "ERROR",
+        "error": str(exc),
+        "status": 500
+    })
     return JSONResponse(
         status_code=500,
         content={
@@ -149,8 +194,6 @@ def internal_error(request: Request, exc):
 
 
 # main
-
-
 if __name__ == "__main__":
     uvicorn.run(
         app,
