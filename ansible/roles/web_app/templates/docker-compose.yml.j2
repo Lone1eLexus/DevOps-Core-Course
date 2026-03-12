@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  {{ app_name }}:
+    image: {{ web_app_docker_image }}:{{ web_app_docker_image_tag }}
+    container_name: {{ app_name }}
+    ports:
+      - "{{ app_port }}:{{ app_port_inside }}"
+    environment:
+      - PORT={{ app_port_inside }}
+    restart: {{ web_app_restart_policy }}
+    networks:
+      - {{ app_name }}_network
+
+networks:
+  {{ app_name }}_network:
+    driver: bridge

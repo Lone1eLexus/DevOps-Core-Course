@@ -1,17 +1,56 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
-  become: yes
+- name: Update apt cache with handling
+  become: true
+  tags:
+    - packages
+    - common
+  block:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
 
-- name: Install common packages
-  apt:
-    name: "{{ common_packages }}"
-    state: present
-  become: yes
+  rescue:
+    - name: Fix apt cache on failure
+      ansible.builtin.apt:
+        update_cache: true
+        force_apt_get: true
+      changed_when: true
+
+  always:
+    - name: Log completion
+      ansible.builtin.debug:
+        msg: "Apt cache update attempted"
+
+
+- name: Install common packages with handling
+  become: true
+  tags:
+    - packages
+    - common
+  block:
+    - name: Install common packages
+      ansible.builtin.apt:
+        name: "{{ common_packages }}"
+        state: present
+
+  rescue:
+    - name: Retry with force
+      ansible.builtin.apt:
+        name: "{{ common_packages }}"
+        state: present
+        force_apt_get: true
+
+  always:
+    - name: Log completion
+      ansible.builtin.debug:
+        msg: "Install common packages attempted"
+
 
 - name: Set timezone to UTC
-  timezone:
+  community.general.timezone:
     name: UTC
-  become: yes
+  become: true
+  tags:
+    - common
+    - users
