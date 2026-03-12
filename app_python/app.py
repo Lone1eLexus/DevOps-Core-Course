@@ -29,7 +29,8 @@ app = FastAPI(
 # JSON Logging Setup
 logHandler = logging.StreamHandler(sys.stdout)
 formatter = jsonlogger.JsonFormatter(
-    '%(timestamp)s %(level)s %(name)s %(message)s %(method)s %(path)s %(status)s'
+    '%(timestamp)s %(level)s %(name)s %(message)s'
+    '%(method)s %(path)s %(status)s'
 )
 logHandler.setFormatter(formatter)
 
@@ -66,12 +67,13 @@ def get_system_info():
 # Time
 start_time = datetime.now(timezone.utc)
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = datetime.now(timezone.utc)
     response = await call_next(request)
     duration = (datetime.now(timezone.utc) - start).total_seconds()
-    
+
     logger.info(
         "Request processed",
         extra={
@@ -113,8 +115,6 @@ def health(request: Request):
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'uptime_seconds': get_uptime()['seconds']
     }
-
-    
 
 
 @app.get("/")
