@@ -1,0 +1,52 @@
+---
+# Directories
+observability_dir: /opt/observability
+
+# Loki
+loki_version: 3.0.0
+loki_port: 3100
+loki_retention_hours: 168
+
+# Promtail
+promtail_version: 3.0.0
+promtail_port: 9080
+
+
+grafana_version: 12.3.1
+grafana_port: 3000
+
+# Prometheus
+prometheus_version: 3.9.0
+prometheus_port: 9090
+prometheus_retention_days: 15
+prometheus_retention_size: 10GB
+prometheus_scrape_interval: 15s
+
+# Targets for Prometheus (list of dicts with job, targets, optional path)
+prometheus_targets:
+  - job: prometheus
+    targets: ["localhost:9090"]
+  - job: app
+    targets: ["app-python:8080"]
+    metrics_path: /metrics
+  - job: loki
+    targets: ["loki:3100"]
+    metrics_path: /metrics
+  - job: grafana
+    targets: ["grafana:3000"]
+    metrics_path: /metrics
+
+# Grafana datasources
+grafana_datasources:
+  - name: Loki
+    type: loki
+    url: "http://loki:{{ loki_port }}"
+    access: proxy
+    isDefault: false
+  - name: Prometheus
+    type: prometheus
+    url: "http://prometheus:{{ prometheus_port }}"
+    access: proxy
+    isDefault: true
+
+provision_dashboards: true
