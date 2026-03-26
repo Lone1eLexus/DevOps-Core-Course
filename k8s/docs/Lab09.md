@@ -349,3 +349,111 @@ The deployment consists of:
 **Health checks**: Liveness and readiness probes on `/health` endpoint ensure pods are healthy and ready to serve traffic.
 
 **Operatations**: I performed operations using only declarative way (modifying .yml files and applying them)
+
+## Bonus task
+
+```bash
+$ kubectl apply -f k8s/deployment-go.yml
+deployment.apps/devops-info-service-go created
+```
+
+```bash
+$ kubectl apply -f k8s/service-go.yml
+service/devops-info-service-go created
+```
+
+```bash
+$ kubectl get services
+NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+devops-info-service      NodePort    10.109.62.222    <none>        80:30080/TCP   4h33m
+devops-info-service-go   NodePort    10.111.217.117   <none>        80:30090/TCP   31s
+kubernetes               ClusterIP   10.96.0.1        <none>        443/TCP        5h54m
+```
+
+```bash
+$ minikube service devops-info-service-go --url
+http://192.168.49.2:30090
+```
+
+```bash
+$ curl $(minikube service devops-info-service-go --url)/health
+{"status":"healthy","timestamp":"2026-03-26T19:03:31Z","uptime_seconds":172}
+```
+
+```bash
+$ minikube addons enable ingress
+💡  ingress is an addon maintained by Kubernetes. For any concerns contact minikube on GitHub.
+You can view the list of minikube maintainers at: https://github.com/kubernetes/minikube/blob/master/OWNERS
+    ▪ Using image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.7
+    ▪ Using image registry.k8s.io/ingress-nginx/controller:v1.14.3
+    ▪ Using image registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.7
+🔎  Verifying ingress addon...
+🌟  The 'ingress' addon is enabled
+```
+
+```bash
+$ kubectl apply -f k8s/ingress.yml
+ingress.networking.k8s.io/apps-ingress created
+```
+
+```bash
+$ curl http://local.example.com/app1/health
+{"service":{"name":"devops-info-service","version":"1.0.0","description":"DevOps course info service","framework":"FastAPI"},"system":{"hostname":"devops-info-service-78f44cdc7d-9lbts","platform":"Linux","platform_version":"#14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2","architecture":"x86_64","cpu_count":16,"python_version":"3.13.12"},"runtime":{"uptime_seconds":15386,"uptime_human":"4 hours, 16 minutes","current_time":"2026-03-26T19:10:31.677875+00:00","timezone":"UTC"},"request":{"client_ip":"10.244.0.35","user_agent":"curl/8.5.0","method":"GET","path":"/"},"endpoints":[{"path":"/","method":"GET","description":"Service information"},{"path":"/health","method":"GET","description":"Health check"},{"path":"/docs","method":"GET","description":"Auto-generated API documentation"}]}
+```
+
+```bash
+$ curl http://local.example.com/app2/health
+{"service":{"name":"devops-info-service","version":"1.0.0","description":"DevOps course info service","framework":"Go net/http"},"system":{"hostname":"devops-info-service-go-686d4f5dcd-9h44m","platform":"linux","platform_version":"linux/amd64","architecture":"amd64","cpu_count":16,"go_version":"go1.21.13"},"runtime":{"uptime_seconds":636,"uptime_human":"0 hours, 10 minutes","current_time":"2026-03-26T19:11:20Z","timezone":"UTC"},"request":{"client_ip":"192.168.49.1","user_agent":"curl/8.5.0","method":"GET","path":"/"},"endpoints":[{"path":"/","method":"GET","description":"Service information"},{"path":"/health","method":"GET","description":"Health check"}]}
+```
+
+**Add TLS**
+
+```bash
+$ kubectl apply -f k8s/ingress.yml
+ingress.networking.k8s.io/apps-ingress configured
+```
+
+```bash
+$ curl http://local.example.com/app2/health
+<html>
+<head><title>308 Permanent Redirect</title></head>
+<body>
+<center><h1>308 Permanent Redirect</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+```
+
+```bash
+$ curl https://local.example.com/app2/health
+curl: (60) SSL certificate problem: self-signed certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+```
+
+```bash
+$ curl -k https://local.example.com/app2/health
+{"service":{"name":"devops-info-service","version":"1.0.0","description":"DevOps course info service","framework":"Go net/http"},"system":{"hostname":"devops-info-service-go-686d4f5dcd-nxgbh","platform":"linux","platform_version":"linux/amd64","architecture":"amd64","cpu_count":16,"go_version":"go1.21.13"},"runtime":{"uptime_seconds":1739,"uptime_human":"0 hours, 28 minutes","current_time":"2026-03-26T19:29:37Z","timezone":"UTC"},"request":{"client_ip":"192.168.49.1","user_agent":"curl/8.5.0","method":"GET","path":"/"},"endpoints":[{"path":"/","method":"GET","description":"Service information"},{"path":"/health","method":"GET","description":"Health check"}]}
+```
+
+```bash
+$ curl -k https://local.example.com/app1/health
+{"service":{"name":"devops-info-service","version":"1.0.0","description":"DevOps course info service","framework":"FastAPI"},"system":{"hostname":"devops-info-service-78f44cdc7d-ksxq4","platform":"Linux","platform_version":"#14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2","architecture":"x86_64","cpu_count":16,"python_version":"3.13.12"},"runtime":{"uptime_seconds":16545,"uptime_human":"4 hours, 35 minutes","current_time":"2026-03-26T19:29:43.023055+00:00","timezone":"UTC"},"request":{"client_ip":"10.244.0.35","user_agent":"curl/8.5.0","method":"GET","path":"/"},"endpoints":[{"path":"/","method":"GET","description":"Service information"},{"path":"/health","method":"GET","description":"Health check"},{"path":"/docs","method":"GET","description":"Auto-generated API documentation"}]}
+```
+
+### Docs:
+
+For the bonus task, I extended the setup to route traffic to two different applications via a single Ingress controller, secured with a self‑signed TLS certificate.
+
+**Production Considerations**:
+
+- Self‑signed certificates are only for development; in production use a trusted CA (e.g., Let's Encrypt) and cert-manager for automatic renewal.
+
+- The Ingress controller’s default redirect from HTTP to HTTPS is desirable for security.
+
+- For production, also set appropriate timeouts, rate limits, and consider using the Gateway API as the successor to Ingress.
+
+
