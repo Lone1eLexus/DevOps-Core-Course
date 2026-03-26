@@ -1,0 +1,59 @@
+---
+- name: Wait for Grafana API to be ready
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ grafana_port }}/api/health"
+    method: GET
+    status_code: 200
+  register: grafana_health
+  until: grafana_health.status == 200
+  retries: 10
+  delay: 5
+
+- name: Get existing datasources
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ grafana_port }}/api/datasources"
+    method: GET
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    status_code: 200
+  register: existing_datasources
+  changed_when: false
+
+- name: Create Loki datasource if not exists
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ grafana_port }}/api/datasources"
+    method: POST
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body:
+      name: "Loki"
+      type: "loki"
+      url: "http://loki:{{ loki_port }}"
+      access: "proxy"
+      isDefault: false
+    body_format: json
+    status_code: 200
+  when: existing_datasources.json | selectattr('name', 'equalto', 'Loki') | list | length == 0
+
+- name: Create Prometheus datasource if not exists
+  uri:
+    url: "http://{{ ansible_default_ipv4.address }}:{{ grafana_port }}/api/datasources"
+    method: POST
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body:
+      name: "Prometheus"
+      type: "prometheus"
+      url: "http://prometheus:{{ prometheus_port }}"
+      access: "proxy"
+      isDefault: true
+    body_format: json
+    status_code: 200
+  when: existing_datasources.json | selectattr('name', 'equalto', 'Prometheus') | list | length == 0

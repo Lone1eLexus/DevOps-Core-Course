@@ -7,13 +7,16 @@ import platform
 import socket
 import sys
 from datetime import datetime, timezone
-from pythonjsonlogger import jsonlogger
 
 
 import logging
+from prometheus_client import Counter, Histogram, Gauge
+from prometheus_client import generate_latest, REGISTRY
+from pythonjsonlogger import jsonlogger
+
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 import uvicorn
 
 
@@ -25,6 +28,27 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 app = FastAPI(
     title="Simple python app"
 )
+
+# Prometheus Metrics
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status']
+)
+
+http_request_duration_seconds = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration in seconds',
+    ['method', 'endpoint']
+)
+
+http_requests_in_progress = Gauge(
+    'http_requests_in_progress',
+    'Number of HTTP requests currently in progress'
+)
+
+endpoint_calls = Counter('devops_info_endpoint_calls',
+                         'Endpoint calls', ['endpoint'])
 
 # JSON Logging Setup
 logHandler = logging.StreamHandler(sys.stdout)
@@ -66,6 +90,38 @@ def get_system_info():
 
 # Time
 start_time = datetime.now(timezone.utc)
+
+
+# Prometheus Middleware
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    http_requests_in_progress.inc()
+
+    start = datetime.now(timezone.utc)
+
+    try:
+        response = await call_next(request)
+    finally:
+        http_requests_in_progress.dec()
+
+    duration = (datetime.now(timezone.utc) - start).total_seconds()
+
+    endpoint = request.url.path
+
+    http_request_duration_seconds.labels(
+        method=request.method,
+        endpoint=endpoint
+    ).observe(duration)
+
+    http_requests_total.labels(
+        method=request.method,
+        endpoint=endpoint,
+        status=response.status_code
+    ).inc()
+
+    endpoint_calls.labels(endpoint=endpoint).inc()
+
+    return response
 
 
 @app.middleware("http")
@@ -153,6 +209,15 @@ def index(request: Request):
                 "description": "Auto-generated API documentation"}
         ]
     }
+
+
+@app.get("/metrics")
+def metrics():
+    """Expose Prometheus metrics."""
+    return Response(
+        content=generate_latest(REGISTRY),
+        media_type="text/plain"
+    )
 
 # Error Handling
 

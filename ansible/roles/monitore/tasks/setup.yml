@@ -1,0 +1,60 @@
+---
+- name: Ensure observability directory exists
+  file:
+    path: "{{ observability_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create subdirectories
+  file:
+    path: "{{ observability_dir }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - loki
+    - promtail
+    - prometheus
+    - grafana/provisioning/datasources
+    - grafana/provisioning/dashboards
+    - grafana/dashboards
+
+- name: Template docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ observability_dir }}/docker-compose.yml"
+    mode: '0644'
+
+- name: Template loki config
+  template:
+    src: loki-config.yml.j2
+    dest: "{{ observability_dir }}/loki/config.yml"
+    mode: '0644'
+
+- name: Template promtail config
+  template:
+    src: promtail-config.yml.j2
+    dest: "{{ observability_dir }}/promtail/config.yml"
+    mode: '0644'
+
+- name: Template prometheus config
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ observability_dir }}/prometheus/prometheus.yml"
+    mode: '0644'
+
+- name: Create Grafana datasource provisioning file
+  template:
+    src: datasource.yml.j2   # we'll create this template next
+    dest: "{{ observability_dir }}/grafana/provisioning/datasources/datasource.yml"
+    mode: '0644'
+  when: provision_dashboards   # if using provisioning files instead of API
+
+- name: Copy dashboard JSON files
+  copy:
+    src: "dashboards/{{ item }}"
+    dest: "{{ observability_dir }}/grafana/dashboards/"
+    mode: '0644'
+  loop:
+    - loki-dashboard.json
+    - prometheus-dashboard.json
+  when: provision_dashboards

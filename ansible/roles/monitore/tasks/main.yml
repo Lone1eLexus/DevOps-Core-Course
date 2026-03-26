@@ -1,0 +1,9 @@
+---
+- name: Include setup tasks
+  import_tasks: setup.yml
+
+- name: Include deploy tasks
+  import_tasks: deploy.yml
+
+- name: Include grafana configuration tasks
+  import_tasks: grafana.yml
