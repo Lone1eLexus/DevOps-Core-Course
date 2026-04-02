@@ -1,0 +1,47 @@
+# Number of replicas
+replicaCount: 3
+
+# Image configuration
+image:
+  repository: lehus1/devops-info-service-go
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Service configuration
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8000
+  nodePort: 30081
+
+# Environment variables
+env:
+  - name: PORT
+    value: "8000"
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+# Liveness probe settings
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+# Readiness probe settings
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 3

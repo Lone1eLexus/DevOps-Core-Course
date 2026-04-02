@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "devops-info-service.fullname" . }}-pre-install"
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    {{- include "devops-info-service.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      name: "{{ include "devops-info-service.fullname" . }}-pre-install"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pre-install-check
+        image: busybox:latest
+        command:
+          - sh
+          - -c
+          - |
+            echo "Running pre-install validation..."
+            echo "Checking required values..."
+            # Use the environment variable if needed
+            echo "Some required value is: ${REQUIRED_VAR:-not set}"
+            echo "Pre-install validation passed."
+            sleep 2
+        env:
+        - name: REQUIRED_VAR
+          value: "{{ .Values.someRequiredValue | default "default" }}"
