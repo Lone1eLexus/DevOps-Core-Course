@@ -13,16 +13,25 @@ spec:
     metadata:
       labels:
         {{- include "devops-info-service.selectorLabels" . | nindent 8 }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "devops-app-role"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/devops-app"
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{`{{- with secret "secret/devops-app" -}}`}}
+          USERNAME={{`{{ .Data.data.username }}`}}
+          PASSWORD={{`{{ .Data.data.password }}`}}
+          {{`{{- end }}`}}
     spec:
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        {{- include "devops-app.envVars" . | nindent 8 }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
           name: http
-        env:
-        {{- toYaml .Values.env | nindent 8 }}
         {{- if .Values.resources }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
