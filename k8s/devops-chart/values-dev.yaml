@@ -1,0 +1,27 @@
+# Development environment – lightweight, fast iteration
+replicaCount: 1
+
+image:
+  tag: "latest"
+  pullPolicy: Always
+
+service:
+  type: NodePort
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 3
+  periodSeconds: 5

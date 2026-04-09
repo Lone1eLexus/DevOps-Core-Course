@@ -1,0 +1,26 @@
+replicaCount: 3
+
+image:
+  tag: "2026.02.9"
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer     # Or ClusterIP + Ingress
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 10
+  periodSeconds: 5
