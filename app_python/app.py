@@ -89,7 +89,7 @@ def write_counter(value: int):
     with _counter_lock:
         # ✅ Ensure data directory exists
         COUNTER_FILE.parent.mkdir(parents=True, exist_ok=True)
-        
+
         temp_file = COUNTER_FILE.with_suffix(".tmp")
         with open(temp_file, "w") as f:
             f.write(str(value))
