@@ -1,6 +1,10 @@
 # Number of replicas
 replicaCount: 3
 
+secrets:
+  username: "default-user"
+  password: "default-password"
+
 # Image configuration
 image:
   repository: lehus1/devops-info-service
@@ -45,3 +49,7 @@ readinessProbe:
     port: 8000
   initialDelaySeconds: 5
   periodSeconds: 3
+
+# Environment settings
+environment: development
+logLevel: debug
