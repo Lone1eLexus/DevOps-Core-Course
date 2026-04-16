@@ -7,6 +7,8 @@ import platform
 import socket
 import sys
 from datetime import datetime, timezone
+import threading
+from pathlib import Path
 
 
 import logging
@@ -62,9 +64,35 @@ logger = logging.getLogger()
 logger.addHandler(logHandler)
 logger.setLevel(logging.INFO)
 
+
+# Counter file location (persistent volume)
+DATA_DIR = os.getenv("DATA_DIR", "/data")
+COUNTER_FILE = Path(DATA_DIR) / "visits"
+
+
+_counter_lock = threading.Lock()
+
+
+def read_counter():
+    """Read current counter from file, return integer."""
+    if not COUNTER_FILE.exists():
+        return 0
+    try:
+        with open(COUNTER_FILE, "r") as f:
+            return int(f.read().strip())
+    except (ValueError, IOError):
+        return 0
+
+
+def write_counter(value: int):
+    """Write counter value to file atomically (using a temp file)."""
+    with _counter_lock:
+        temp_file = COUNTER_FILE.with_suffix(".tmp")
+        with open(temp_file, "w") as f:
+            f.write(str(value))
+        temp_file.replace(COUNTER_FILE)
+
 # System info
-
-
 def get_system_info():
     """Collect system information."""
     try:
@@ -180,6 +208,9 @@ def index(request: Request):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "level": "INFO"
     })
+    global counter
+    counter += 1
+    write_counter(counter)
     return {
         "service": {
             "name": "devops-info-service",
@@ -219,9 +250,14 @@ def metrics():
         media_type="text/plain"
     )
 
+
+@app.get("/visits")
+def get_visits():
+    """Return current visit count."""
+    return {"visits": counter}
+
+
 # Error Handling
-
-
 @app.exception_handler(404)
 def not_found(request: Request, exc):
     """Handle 404 Not Found errors."""
@@ -260,6 +296,10 @@ def internal_error(request: Request, exc):
 
 # main
 if __name__ == "__main__":
+
+    # Initialize counter from file
+    counter = read_counter()
+
     uvicorn.run(
         app,
         host=HOST,

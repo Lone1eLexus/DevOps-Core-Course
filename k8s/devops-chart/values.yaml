@@ -9,7 +9,7 @@ secrets:
 image:
   repository: lehus1/devops-info-service
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # Service configuration
 service:
@@ -53,3 +53,8 @@ readinessProbe:
 # Environment settings
 environment: development
 logLevel: debug
+
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: ""
