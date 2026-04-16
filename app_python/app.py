@@ -66,7 +66,7 @@ logger.setLevel(logging.INFO)
 
 
 # Counter file location (persistent volume)
-DATA_DIR = os.getenv("DATA_DIR", "/data")
+DATA_DIR = os.getenv("DATA_DIR", "./data")
 COUNTER_FILE = Path(DATA_DIR) / "visits"
 
 
@@ -80,13 +80,16 @@ def read_counter():
     try:
         with open(COUNTER_FILE, "r") as f:
             return int(f.read().strip())
-    except (ValueError, IOError):
+    except (ValueError, IOError, FileNotFoundError):
         return 0
 
 
 def write_counter(value: int):
     """Write counter value to file atomically (using a temp file)."""
     with _counter_lock:
+        # ✅ Ensure data directory exists
+        COUNTER_FILE.parent.mkdir(parents=True, exist_ok=True)
+        
         temp_file = COUNTER_FILE.with_suffix(".tmp")
         with open(temp_file, "w") as f:
             f.write(str(value))
