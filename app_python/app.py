@@ -92,6 +92,7 @@ def write_counter(value: int):
             f.write(str(value))
         temp_file.replace(COUNTER_FILE)
 
+
 # System info
 def get_system_info():
     """Collect system information."""
