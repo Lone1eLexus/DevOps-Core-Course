@@ -298,12 +298,12 @@ def internal_error(request: Request, exc):
     )
 
 
+# Initialize counter from file
+counter = read_counter()
+
+
 # main
 if __name__ == "__main__":
-
-    # Initialize counter from file
-    counter = read_counter()
-
     uvicorn.run(
         app,
         host=HOST,
