@@ -533,6 +533,13 @@ $ kubectl get deployment -n dev devops-app-dev-devops-info-service -o jsonpath="
 
 An ApplicationSet was created to generate `dev` and `prod` applications from a single template:
 
-[YAML snippet]
-
 This would eliminate duplicate Application manifests, but due to a variable substitution issue in the local cluster, the ApplicationSet could not create the child resources. The pattern is understood and would be applied in a production setting.
+
+```bash
+$ kubectl apply -f argocd/applicationset.yaml
+applicationset.argoproj.io/devops-info-service-set created
+$ argocd app list
+NAME                             CLUSTER                         NAMESPACE  PROJECT  STATUS     HEALTH   SYNCPOLICY  CONDITIONS  REPO                                                   PATH              TARGET
+argocd/devops-info-service-dev   https://kubernetes.default.svc  dev        default  OutOfSync  Missing  Manual      <none>      https://github.com/Lone1eLexus/DevOps-Core-Course.git  k8s/devops-chart  lab13
+argocd/devops-info-service-prod  https://kubernetes.default.svc  prod       default  OutOfSync  Missing  Manual      <none>      https://github.com/Lone1eLexus/DevOps-Core-Course.git  k8s/devops-chart  lab13
+```
