@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: devops-environments
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - name: dev
+        namespace: dev
+        valuesFile: values-dev.yaml
+      - name: prod
+        namespace: prod
+        valuesFile: values-prod.yaml
+  template:
+    metadata:
+      name: 'devops-{{.name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/Lone1eLexus/DevOps-Core-Course.git
+        targetRevision: lab13
+        path: k8s/devops-chart
+        helm:
+          valueFiles:
+          - '{{.valuesFile}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.namespace}}'
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
