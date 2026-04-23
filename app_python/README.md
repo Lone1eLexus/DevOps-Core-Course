@@ -85,6 +85,14 @@ A lightweight web service that provides real time system information and health 
 | PORT | 8000 | Listening port |
 | DEBUG | False | Enable debug logging |
 
+## Persistence
+
+The application now tracks the number of visits to the root endpoint (`/`). The counter is stored in a file at `/data/visits`. This file persists across container restarts when a volume is mounted.
+
+- **Endpoint** `/visits` – returns the current visit count.
+- The counter is incremented on every `GET /` request.
+- Thread‑safe file writes using a lock.
+
 ## Status
 
 ![Python CI/CD](https://github.com/Lone1eLexus/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)
