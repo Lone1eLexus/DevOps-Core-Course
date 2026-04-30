@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argo-rollouts-dashboard
+  namespace: argo-rollouts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argo-rollouts-dashboard
+  template:
+    metadata:
+      labels:
+        app: argo-rollouts-dashboard
+    spec:
+      containers:
+      - name: dashboard
+        image: quay.io/argoproj/kubectl-argo-rollouts:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            kubectl argo rollouts dashboard \
+              --rollout-namespace argo-rollouts \
+              --reload \
+              --address 0.0.0.0 \
+              --port 3100
+        ports:
+        - containerPort: 3100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-rollouts-dashboard
+  namespace: argo-rollouts
+spec:
+  ports:
+  - port: 3100
+    targetPort: 3100
+  selector:
+    app: argo-rollouts-dashboard

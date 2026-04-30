@@ -1,4 +1,4 @@
-# Number of replicas
+## Number of replicas
 replicaCount: 3
 
 secrets:
@@ -50,30 +50,6 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 3
 
-# Environment settings
-environment: development
-logLevel: debug
-
-persistence:
-  enabled: true
-  size: 100Mi
-  storageClass: ""
-
-vault:
-  enabled: false
-
-rollout:
-  enabled: true
-  strategy: blueGreen
-
-canary:
-  enabled: false     
-
 blueGreen:
   enabled: true
-  autoPromotionEnabled: false    # manual promotion   
-
-configMap:
-  enabled: true
-persistence:
-  enabled: true
+  autoPromotionEnabled: false    # manual promotion
