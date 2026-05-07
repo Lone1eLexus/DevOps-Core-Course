@@ -45,8 +45,10 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: http
+          {{- if .Values.resources }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
@@ -73,7 +75,7 @@ spec:
     - metadata:
         name: data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: {{ .Values.persistence.accessModes | toYaml | nindent 8 }}
         {{- if .Values.persistence.storageClass }}
         storageClassName: {{ .Values.persistence.storageClass }}
         {{- end }}

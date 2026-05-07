@@ -63,17 +63,26 @@ vault:
   enabled: false
 
 rollout:
-  enabled: true
+  enabled: false
   strategy: blueGreen
 
 canary:
   enabled: false     
 
 blueGreen:
-  enabled: true
+  enabled: false
   autoPromotionEnabled: false    # manual promotion   
 
 configMap:
   enabled: true
+
+statefulset:
+  enabled: true
+
+# persistence configuration for StatefulSet
 persistence:
   enabled: true
+  size: 1Gi
+  storageClass: ""   # if not set, uses default storage class
+  accessModes:
+    - ReadWriteOnce
