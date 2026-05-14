@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 DevOps Info Service
 Main application module providing system introspection APIs
