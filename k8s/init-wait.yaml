@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-wait-pod
+spec:
+  initContainers:
+    - name: waiter
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for kubernetes.default.svc.cluster.local..."
+          until nslookup kubernetes.default.svc.cluster.local; do
+            echo "Still waiting..."
+            sleep 2
+          done
+          echo "Service found. Continuing."
+  containers:
+    - name: main-app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo Main container started; sleep 3600"]
